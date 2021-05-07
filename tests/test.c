@@ -1,7 +1,9 @@
 #include <linked_list.h>
+#include <locale.h>
 #include <stdlib.h>
 #include <string.h>
 #include <trie.h>
+#include <wctype.h>
 
 char* string_serializer(void* value) {
     char* str = (char*)value;
@@ -16,7 +18,7 @@ void trie_test() {
     FILE* fp = fopen("../data/lusiadas.txt", "r");
     trie_load_dict(root, fp);
 
-    char* input_val = "ve";
+    char* input_val = "of";
 
     char* input = (char*)malloc(sizeof(input_val));
     memcpy(input, input_val, sizeof(input));

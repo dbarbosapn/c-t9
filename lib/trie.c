@@ -47,7 +47,7 @@ void trie_load_dict(TrieNode* root, FILE* dict) {
     // ignored.
     char buffer[LOAD_DICT_BUF];
     while (fscanf(dict, "%s", buffer) != EOF) {
-        if (str_is_word(buffer)) {
+        if (str_scan(buffer, LOAD_DICT_BUF)) {
             str_to_lower(buffer);
             insert_word(root, buffer);
         }
