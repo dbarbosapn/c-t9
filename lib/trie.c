@@ -43,6 +43,8 @@ void insert_word(TrieNode* root, char* word) {
  * open with read permissions)
  **/
 void trie_load_dict(TrieNode* root, FILE* dict) {
+    // TODO: Improve this. Words ended on '.', ',' or started by '"' are being
+    // ignored.
     char buffer[LOAD_DICT_BUF];
     while (fscanf(dict, "%s", buffer) != EOF) {
         if (str_is_word(buffer)) {
