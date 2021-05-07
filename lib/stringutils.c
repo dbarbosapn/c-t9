@@ -9,6 +9,8 @@ void str_to_lower(char* str) {
 }
 
 int str_scan(char* buffer, int buf_size) {
+    // TODO: Check UTF8 characters on isalpha
+
     char new_buf[buf_size];
     int str_size = 0;
 
