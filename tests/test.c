@@ -4,6 +4,7 @@
 #include <string.h>
 #include <trie.h>
 #include <wctype.h>
+#include <hashtable.h>
 
 char* string_serializer(void* value) {
     char* str = (char*)value;
@@ -27,7 +28,25 @@ void trie_test() {
     printf("%s\n", list_serialize(list, string_serializer));
 }
 
+void hashtable_test() {
+     FILE *dict = fopen("../data/lusiadas.txt","r");
+     HashTable *ht = init();
+     char buffer[64];
+     while (fscanf(dict, "%s", buffer) != EOF) {
+          if (str_scan(buffer, 64)) {
+              str_to_lower(buffer);
+              put(ht, buffer);
+          }
+          buffer[0]='\0';
+     }
+     fclose(dict);
+
+     printf("|minha| = 33\tget(hashtable, \"palavras\") = %d\n", get(ht,"palavras"));  //get(ht,"minha") dá uma a mais do q devia
+}
+
 int main(int argc, char const* argv[]) {
     trie_test();
+    hashtable_test();
+
     return 0;
 }
