@@ -1,3 +1,4 @@
+#include <hashtable.h>
 #include <linked_list.h>
 #include <locale.h>
 #include <stdlib.h>
@@ -27,7 +28,27 @@ void trie_test() {
     printf("%s\n", list_serialize(list, string_serializer));
 }
 
+void hashtable_test() {
+    FILE* dict = fopen("../data/lusiadas.txt", "r");
+    HashTable* ht = init();
+    char buffer[64];
+    while (fscanf(dict, "%s", buffer) != EOF) {
+        if (str_scan(buffer, 64)) {
+            str_to_lower(buffer);
+            put(ht, buffer);
+        }
+        buffer[0] = '\0';
+    }
+    fclose(dict);
+
+    printf("|minha| = %d\n", get(ht, "minha"));
+    printf("|palavras| = %d\n", get(ht, "palavras"));
+    printf("|armas| = %d\n", get(ht, "armas"));
+}
+
 int main(int argc, char const* argv[]) {
     trie_test();
+    hashtable_test();
+
     return 0;
 }
