@@ -1,10 +1,9 @@
 #include <int_hashtable.h>
 #include <linked_list.h>
-#include <locale.h>
 #include <stdlib.h>
 #include <string.h>
+#include <t9_keys.h>
 #include <trie.h>
-#include <wctype.h>
 
 char* string_serializer(void* value) {
     char* str = (char*)value;
@@ -62,11 +61,16 @@ void interactive_test(TrieNode* trie, HashTable* ht) {
     }
 }
 
+void t9_keys_test() { printf("6665552 - %s\n", get_word("6665552")); }
+
 int main(int argc, char const* argv[]) {
     HashTable* ht = hashtable_test();
     putchar('\n');
     TrieNode* trie = trie_test(ht);
     putchar('\n');
+    t9_keys_test();
+    putchar('\n');
+
     interactive_test(trie, ht);
 
     return 0;
