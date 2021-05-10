@@ -10,10 +10,10 @@ typedef struct HashTable {
     HashNode *chains[HASHSIZE];
 } HashTable;
 
+HashTable *hashtable_create();
+
 int hash(char *str);
 
-void put(HashTable *hashtable, char *str);
+void hashtable_put(HashTable *hashtable, char *key, int value);
 
-int get(HashTable *hashtable, char *key);
-
-HashTable *init();
+void *hashtable_get(HashTable *hashtable, char *key);

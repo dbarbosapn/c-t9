@@ -1,4 +1,4 @@
-#include <hashtable.h>
+#include <int_hashtable.h>
 #include <linked_list.h>
 #include <locale.h>
 #include <stdlib.h>
@@ -30,24 +30,27 @@ void trie_test() {
 
 void hashtable_test() {
     FILE* dict = fopen("../data/lusiadas.txt", "r");
-    HashTable* ht = init();
+    HashTable* ht = hashtable_create();
     char buffer[64];
     while (fscanf(dict, "%s", buffer) != EOF) {
         if (str_scan(buffer, 64)) {
             str_to_lower(buffer);
-            put(ht, buffer);
+            int curr_val = hashtable_get(ht, buffer);
+            if (curr_val == -1) curr_val = 0;
+            hashtable_put(ht, buffer, curr_val + 1);
         }
         buffer[0] = '\0';
     }
     fclose(dict);
 
-    printf("|minha| = %d\n", get(ht, "minha"));
-    printf("|palavras| = %d\n", get(ht, "palavras"));
-    printf("|armas| = %d\n", get(ht, "armas"));
+    printf("|minha| = %d\n", hashtable_get(ht, "minha"));
+    printf("|palavras| = %d\n", hashtable_get(ht, "palavras"));
+    printf("|armas| = %d\n", hashtable_get(ht, "armas"));
 }
 
 int main(int argc, char const* argv[]) {
     trie_test();
+    putchar('\n');
     hashtable_test();
 
     return 0;
