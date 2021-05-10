@@ -23,7 +23,7 @@ int hash(char *str) {
     unsigned long hash = 5381;
     int c;
 
-    while (c = *str++) hash = ((hash << 5) + hash) + c;
+    while ((c = *str++)) hash = ((hash << 5) + hash) + c;
 
     return hash % HASHSIZE;
 }
@@ -44,8 +44,9 @@ void hashtable_put(HashTable *hashtable, char *key, int value) {
     } else {
         HashNode *node = malloc(sizeof(HashNode));
         node->value = value;
-        node->key = (char *)malloc(sizeof(key));
-        memcpy(node->key, key, sizeof(key));
+        size_t key_len = sizeof(key);
+        node->key = (char *)malloc(key_len);
+        memcpy(node->key, key, key_len);
         node->next = hashtable->chains[h];
         hashtable->chains[h] = node;
     }
@@ -54,7 +55,7 @@ void hashtable_put(HashTable *hashtable, char *key, int value) {
 /**
  * Gets a value from the table from the given key
  **/
-void *hashtable_get(HashTable *hashtable, char *key) {
+int hashtable_get(HashTable *hashtable, char *key) {
     int h = hash(key);
     HashNode *n;
 
