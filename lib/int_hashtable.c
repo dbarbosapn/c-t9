@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Creates a integer hashtable
+ **/
 HashTable *hashtable_create() {
     HashTable *hashtable = (HashTable *)malloc(sizeof(HashTable));
 
@@ -12,15 +15,22 @@ HashTable *hashtable_create() {
     return hashtable;
 }
 
+/**
+ * djb2 hash algorithm
+ * http://www.cse.yorku.ca/~oz/hash.html
+ **/
 int hash(char *str) {
-    unsigned long hash = *str++;
+    unsigned long hash = 5381;
     int c;
 
-    while ((c = *str++)) hash = (hash * 251 + c) % HASHSIZE;
+    while (c = *str++) hash = ((hash << 5) + hash) + c;
 
-    return hash;
+    return hash % HASHSIZE;
 }
 
+/**
+ * Inserts the value in the hashtable
+ **/
 void hashtable_put(HashTable *hashtable, char *key, int value) {
     int h = hash(key);
     HashNode *n;
@@ -41,6 +51,9 @@ void hashtable_put(HashTable *hashtable, char *key, int value) {
     }
 }
 
+/**
+ * Gets a value from the table from the given key
+ **/
 void *hashtable_get(HashTable *hashtable, char *key) {
     int h = hash(key);
     HashNode *n;
