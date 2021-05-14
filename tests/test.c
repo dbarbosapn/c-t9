@@ -23,7 +23,7 @@ TrieNode* trie_test(HashTable* ht) {
     char* input = (char*)malloc(sizeof(input_val));
     memcpy(input, input_val, sizeof(input_val));
 
-    Node* list = prefix_search(root, input, ht, NULL);
+    Node* list = prefix_search(root, input, ht);
     printf("%s\n", list_serialize(list, string_serializer));
 
     return root;
@@ -56,16 +56,12 @@ void interactive_test(TrieNode* trie, HashTable* ht) {
         char buffer[60];
         printf("Insert Prefix: ");
         scanf("%s", &buffer);
-        Node* list = prefix_search(trie, buffer, ht, NULL);
+        Node* list = prefix_search(trie, buffer, ht);
         printf("%s\n", list_serialize(list, string_serializer));
     }
 }
 
-void t9_keys_test() {
-    printf("6665552 - %s\n", get_word("6665552"));
-    printf("(perm) 652 - %s\n",
-           list_serialize(get_permutations("652"), string_serializer));
-}
+void t9_keys_test() { printf("6665552 - %s\n", get_word("6665552")); }
 
 int main(int argc, char const* argv[]) {
     HashTable* ht = hashtable_test();

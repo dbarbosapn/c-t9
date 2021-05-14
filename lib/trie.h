@@ -19,8 +19,7 @@ void insert_word(TrieNode* root, char* word);
 
 void trie_load_dict(TrieNode* root, FILE* dict);
 
-Node* prefix_search(TrieNode* root, char* prefix, HashTable* ht,
-                    Node* starting_list);
+Node* prefix_search(TrieNode* root, char* prefix, HashTable* ht);
 
 void get_words(Node** list, TrieNode* root, char* current, HashTable* ht);
 
