@@ -58,7 +58,8 @@ void trie_load_dict(TrieNode* root, FILE* dict) {
  * If a non-null hashtable is passed, it will be used to order the results
  * Returns a linked list
  **/
-Node* prefix_search(TrieNode* root, char* prefix, HashTable* ht) {
+Node* prefix_search(TrieNode* root, char* prefix, HashTable* ht,
+                    Node* starting_list) {
     TrieNode* start = root;
     for (int i = 0; prefix[i]; i++) {
         int index = prefix[i] - 'a';
@@ -68,7 +69,7 @@ Node* prefix_search(TrieNode* root, char* prefix, HashTable* ht) {
             return NULL;
         }
     }
-    Node* list = NULL;
+    Node* list = starting_list;
     size_t prefix_s = sizeof(prefix);
     char* copy = (char*)malloc(prefix_s);
     memcpy(copy, prefix, prefix_s);

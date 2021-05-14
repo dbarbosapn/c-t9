@@ -19,6 +19,9 @@ all: compile clean .clear run
 compile: 
 	@$(COMPILER) $(COMPILER_FLAGS) -I$(LIB_FOLDER) -o $(OUTPUT_FOLDER)/$(PROJECT_NAME).out $(SOURCE_FILES)
 
+compile-debug:
+	@$(COMPILER) $(COMPILER_FLAGS) -g -I$(LIB_FOLDER) -o $(OUTPUT_FOLDER)/$(PROJECT_NAME).out $(SOURCE_FILES)
+
 .clear: 
 	clear
 

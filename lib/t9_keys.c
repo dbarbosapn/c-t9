@@ -9,8 +9,6 @@ const char* t9_key_map[10] = {" ",   "",    "abc",  "def", "ghi",
  * Gets word for key presses (not T9 mode)
  **/
 char* get_word(char* input) {
-    // TODO: This method is very unsafe to invalid input. (e.g. 111 or abc)
-
     char curr_char = input[0];
     int counter = 0;
 
@@ -31,10 +29,26 @@ char* get_word(char* input) {
     word_buffer[word_size] = t9_key_map[curr_char - '0'][counter - 1];
     word_buffer[word_size + 1] = '\0';
 
-    char* result = (char*)malloc(word_size + 1);
+    char* result = (char*)malloc((word_size + 1) * sizeof(char));
     strcpy(result, word_buffer);
 
     return result;
+}
+
+void get_permutations_util(Node** list, char* input, int input_len,
+                           int cur_index, char output[]) {
+    if (cur_index == input_len) {
+        size_t alloc_size = sizeof(char) * (input_len + 1);
+        *list = list_prepend(*list, output, alloc_size);
+        return;
+    }
+
+    int number = input[cur_index] - '0';
+
+    for (int i = 0; i < strlen(t9_key_map[number]); i++) {
+        output[cur_index] = t9_key_map[number][i];
+        get_permutations_util(list, input, input_len, cur_index + 1, output);
+    }
 }
 
 /**
@@ -42,5 +56,10 @@ char* get_word(char* input) {
  * Returns a linked list
  **/
 Node* get_permutations(char* input) {
-    // TODO: Implement
+    Node* list = NULL;
+    int input_len = strlen(input);
+    char output[input_len + 1];
+    output[input_len] = '\0';
+    get_permutations_util(&list, input, input_len, 0, output);
+    return list;
 }
