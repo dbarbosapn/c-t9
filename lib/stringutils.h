@@ -1,5 +1,8 @@
-void str_to_lower(char* str);
+#ifndef _STRING_UTILS
+#define _STRING_UTILS
 
-int str_is_word(char* str);
+void str_normalize(char* str);
 
 int str_scan(char* buffer, int buf_size);
+
+#endif

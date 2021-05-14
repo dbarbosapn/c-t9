@@ -1,3 +1,6 @@
+#ifndef _INT_HASHTABLE
+#define _INT_HASHTABLE
+
 #define HASHSIZE 509
 
 typedef struct HashNode {
@@ -10,10 +13,12 @@ typedef struct HashTable {
     HashNode *chains[HASHSIZE];
 } HashTable;
 
+HashTable *hashtable_create();
+
 int hash(char *str);
 
-void put(HashTable *hashtable, char *str);
+void hashtable_put(HashTable *hashtable, char *key, int value);
 
-int get(HashTable *hashtable, char *key);
+int hashtable_get(HashTable *hashtable, char *key);
 
-HashTable *init();
+#endif
