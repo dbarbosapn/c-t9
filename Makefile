@@ -1,7 +1,8 @@
 PROJECT_NAME := c-kanban
 
 COMPILER := gcc
-COMPILER_FLAGS := -Wall
+COMPILER_FLAGS := `pkg-config --cflags gtk+-3.0` -Wall
+COMPILER_END_FLAGS := `pkg-config --libs gtk+-3.0` # se nao for no fim nao funciona
 
 OUTPUT_FOLDER := bin
 TESTS_FOLDER := tests
@@ -16,13 +17,10 @@ OBJ_FILES := $(patsubst %.c, %.o, $(SOURCE_FILES))
 
 all: compile clean .clear run
 
-compile: 
-	@$(COMPILER) $(COMPILER_FLAGS) -I$(LIB_FOLDER) -o $(OUTPUT_FOLDER)/$(PROJECT_NAME).out $(SOURCE_FILES)
+compile:
+	@$(COMPILER) $(COMPILER_FLAGS) -I$(LIB_FOLDER) -o $(OUTPUT_FOLDER)/$(PROJECT_NAME).out $(SOURCE_FILES) $(COMPILER_END_FLAGS)
 
-compile-debug:
-	@$(COMPILER) $(COMPILER_FLAGS) -g -I$(LIB_FOLDER) -o $(OUTPUT_FOLDER)/$(PROJECT_NAME).out $(SOURCE_FILES)
-
-.clear: 
+.clear:
 	clear
 
 run:

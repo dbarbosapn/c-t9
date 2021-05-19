@@ -1,6 +1,8 @@
 #include <int_hashtable.h>
 #include <simple_input.h>
 #include <stdio.h>
+#include <gtk/gtk.h>
+#include "graphics.h"
 #include <string.h>
 #include <stringutils.h>
 #include <t9_keys.h>
@@ -119,6 +121,10 @@ int main(int argc, char const* argv[]) {
 
         printf("\n\n");
     }
+  
+    // gtk_init(&argc, &argv);
+    // Graphics gr = graphics_init();
+    // gtk_main();
 
     return 0;
 }
