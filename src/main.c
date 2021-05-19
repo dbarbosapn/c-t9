@@ -1,13 +1,14 @@
+#include <gtk/gtk.h>
 #include <int_hashtable.h>
 #include <simple_input.h>
 #include <stdio.h>
-#include <gtk/gtk.h>
-#include "graphics.h"
 #include <string.h>
 #include <stringutils.h>
 #include <t9_keys.h>
 #include <trie.h>
 #include <unistd.h>
+
+#include "graphics.h"
 
 int file_exists(char* filename) { return access(filename, F_OK) == 0; }
 
@@ -84,10 +85,11 @@ Node* run_t9(TrieNode* trie, HashTable* ht, char* input) {
     return result;
 }
 
-int main(int argc, char const* argv[]) {
+int main(int argc, char* argv[]) {
     TrieNode* trie = load_trie();
     HashTable* ht = load_hashtable();
 
+    /*
     while (1) {
         printf("Insert the input (numeric 2-9): ");
         char* input = read_string_input();
@@ -120,11 +122,12 @@ int main(int argc, char const* argv[]) {
         }
 
         printf("\n\n");
-    }
-  
-    // gtk_init(&argc, &argv);
-    // Graphics gr = graphics_init();
-    // gtk_main();
+    }*/
+
+    gtk_init(&argc, &argv);
+    Graphics gr = graphics_init();
+    // TODO: Set the callbacks
+    gtk_main();
 
     return 0;
 }
