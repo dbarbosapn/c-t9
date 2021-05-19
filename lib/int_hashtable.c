@@ -44,7 +44,7 @@ void hashtable_put(HashTable *hashtable, char *key, int value) {
     } else {
         HashNode *node = malloc(sizeof(HashNode));
         node->value = value;
-        size_t key_len = sizeof(key);
+        size_t key_len = sizeof(char) * strlen(key);
         node->key = (char *)malloc(key_len);
         memcpy(node->key, key, key_len);
         node->next = hashtable->chains[h];
@@ -65,4 +65,57 @@ int hashtable_get(HashTable *hashtable, char *key) {
     if (n != NULL) return n->value;
 
     return -1;
+}
+
+void hashtable_save(HashTable *ht, FILE *fp) {
+    for (int i = 0; i < HASHSIZE; i++) {
+        int chain_size = 0;
+        if (ht->chains[i] != NULL) {
+            HashNode *curr_node = ht->chains[i];
+            while (curr_node != NULL) {
+                chain_size++;
+                curr_node = curr_node->next;
+            }
+            fwrite(&chain_size, sizeof(int), 1, fp);
+            curr_node = ht->chains[i];
+            while (curr_node != NULL) {
+                int str_size = strlen(curr_node->key);
+                fwrite(&str_size, sizeof(int), 1, fp);
+                fwrite(curr_node->key, sizeof(char), str_size, fp);
+                fwrite(&curr_node->value, sizeof(int), 1, fp);
+                curr_node = curr_node->next;
+            }
+        } else {
+            fwrite(&chain_size, sizeof(int), 1, fp);
+        }
+    }
+}
+
+HashTable *hashtable_load(FILE *fp) {
+    HashTable *ht = hashtable_create();
+    for (int i = 0; i < HASHSIZE; i++) {
+        int chain_size = 0;
+        fread(&chain_size, sizeof(int), 1, fp);
+        HashNode *prev = NULL;
+        for (int j = 0; j < chain_size; j++) {
+            HashNode *node = (HashNode *)malloc(sizeof(HashNode));
+            int str_size;
+            fread(&str_size, sizeof(int), 1, fp);
+            char *key = (char *)malloc(sizeof(char) * (str_size + 1));
+            fread(key, sizeof(char), str_size, fp);
+            key[str_size] = '\0';
+            node->key = key;
+            fread(&node->value, sizeof(int), 1, fp);
+
+            if (prev == NULL) {
+                ht->chains[i] = node;
+                prev = node;
+            } else {
+                prev->next = node;
+                prev = node;
+            }
+        }
+    }
+
+    return ht;
 }

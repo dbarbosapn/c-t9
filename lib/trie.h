@@ -24,4 +24,8 @@ Node* prefix_search(TrieNode* root, char* prefix, HashTable* ht,
 
 void get_words(Node** list, TrieNode* root, char* current, HashTable* ht);
 
+void trie_save(TrieNode* head, FILE* fp);
+
+TrieNode* trie_load(FILE* fp);
+
 #endif

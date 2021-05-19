@@ -1,47 +1,62 @@
 #include <int_hashtable.h>
 #include <simple_input.h>
 #include <stdio.h>
+#include <string.h>
 #include <stringutils.h>
 #include <t9_keys.h>
 #include <trie.h>
+#include <unistd.h>
+
+int file_exists(char* filename) { return access(filename, F_OK) == 0; }
 
 /**
- * TODO: Add this comment
+ * Loads the trie from file. If not available, creates a new one from the
+ * dictionary
  **/
 TrieNode* load_trie() {
-    // TODO: Check if there is already a binary file with a trie loaded.
-    // Otherwise, load from the dictionary.
-
-    FILE* dict = fopen("data/lusiadas.txt", "r");
-    TrieNode* result = create_trie_node();
-    trie_load_dict(result, dict);
-    fclose(dict);
-    return result;
+    if (!file_exists("data/trie.bin")) {
+        FILE* dict = fopen("data/lusiadas.txt", "r");
+        TrieNode* result = create_trie_node();
+        trie_load_dict(result, dict);
+        fclose(dict);
+        return result;
+    } else {
+        FILE* fp = fopen("data/trie.bin", "rb");
+        TrieNode* trie = trie_load(fp);
+        fclose(fp);
+        return trie;
+    }
 }
 
 /**
- * TODO: Add this comment
+ * Loads the hashtable from file. If not available, creates a new one from the
+ * dictionary
  **/
 HashTable* load_hashtable() {
-    // TODO: Check if there is already a binary file with a hashtable loaded.
-    // Otherwise, load from the dictionary.
+    if (!file_exists("data/hashtable.bin")) {
+        FILE* dict = fopen("data/lusiadas.txt", "r");
+        HashTable* result = hashtable_create();
 
-    FILE* dict = fopen("data/lusiadas.txt", "r");
-    HashTable* result = hashtable_create();
-
-    char buffer[64];
-    while (fscanf(dict, "%s", buffer) != EOF) {
-        str_normalize(buffer);
-        if (str_scan(buffer, 64)) {
-            int curr_val = hashtable_get(result, buffer);
-            if (curr_val == -1) curr_val = 0;
-            hashtable_put(result, buffer, curr_val + 1);
+        char buffer[64];
+        while (fscanf(dict, "%s", buffer) != EOF) {
+            str_normalize(buffer);
+            if (str_scan(buffer, 64)) {
+                int curr_val = hashtable_get(result, buffer);
+                if (curr_val == -1) curr_val = 0;
+                hashtable_put(result, buffer, curr_val + 1);
+            }
+            buffer[0] = '\0';
         }
-        buffer[0] = '\0';
-    }
-    fclose(dict);
+        fclose(dict);
 
-    return result;
+        return result;
+    } else {
+        FILE* fp = fopen("data/hashtable.bin", "rb");
+        HashTable* result = hashtable_load(fp);
+        fclose(fp);
+
+        return result;
+    }
 }
 
 /**
@@ -74,6 +89,17 @@ int main(int argc, char const* argv[]) {
     while (1) {
         printf("Insert the input (numeric 2-9): ");
         char* input = read_string_input();
+
+        // For debug only
+        if (strcmp(input, "quit") == 0) {
+            FILE* fp = fopen("data/trie.bin", "wb");
+            trie_save(trie, fp);
+            fclose(fp);
+            FILE* fp2 = fopen("data/hashtable.bin", "wb");
+            hashtable_save(ht, fp2);
+            fclose(fp2);
+            return 0;
+        }
         putchar('\n');
 
         Node* list = run_t9(trie, ht, input);
@@ -82,7 +108,8 @@ int main(int argc, char const* argv[]) {
         Node* curr = list;
         while (curr != NULL) {
             if (curr != list) printf(", ");
-            printf("%s", (char*)curr->value);
+            printf("%s: %d", (char*)curr->value,
+                   hashtable_get(ht, (char*)curr->value));
 
             free(curr->value);
             Node* prev = curr;

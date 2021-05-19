@@ -113,3 +113,38 @@ void get_words(Node** list, TrieNode* root, char* current, HashTable* ht) {
         free(current);
     }
 }
+
+/**
+ * Saves the trie in the given file. fp must have write binary permissions.
+ **/
+void trie_save(TrieNode* head, FILE* fp) {
+    fwrite(&head->is_word, sizeof(int), 1, fp);
+    int num_children = 0;
+    for (int i = 0; i < NUM_CHARS; i++) {
+        if (head->children[i] != NULL) num_children++;
+    }
+    fwrite(&num_children, sizeof(int), 1, fp);
+    for (int i = 0; i < NUM_CHARS; i++) {
+        if (head->children[i] != NULL) {
+            fwrite(&i, sizeof(int), 1, fp);
+            trie_save(head->children[i], fp);
+        }
+    }
+}
+
+/**
+ * Loads the trie from the given file. fp must have read binary permissions.
+ **/
+TrieNode* trie_load(FILE* fp) {
+    TrieNode* node = create_trie_node();
+    fread(&node->is_word, sizeof(int), 1, fp);
+    fflush(stdout);
+    int n;
+    fread(&n, sizeof(int), 1, fp);
+    for (int i = 0; i < n; i++) {
+        int index;
+        fread(&index, sizeof(int), 1, fp);
+        node->children[index] = trie_load(fp);
+    }
+    return node;
+}
