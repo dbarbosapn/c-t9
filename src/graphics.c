@@ -43,16 +43,18 @@ GtkWidget *createLabel() {
      return label;
 }
 
-GtkWidget *createMiddleButtons() {
+GtkWidget *createMiddleButtons(GtkWidget *buttons[]) {
      GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
      GtkWidget *button = gtk_button_new_with_label("cycle");
      gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, TRUE, 0);
+     buttons[12] = button;
      button = gtk_button_new_with_label("delete");
      gtk_box_pack_end(GTK_BOX(vbox), button, FALSE,TRUE, 0);
+     buttons[13] = button;
      return vbox;
 }
 
-GtkWidget *createButtonGrid(gchar *values[]) {
+GtkWidget *createButtonGrid(gchar *values[], GtkWidget *buttons[]) {
      GtkWidget *grid = gtk_grid_new();
      GtkWidget *button;
      gtk_grid_set_row_spacing(GTK_GRID(grid), 10);
@@ -61,6 +63,7 @@ GtkWidget *createButtonGrid(gchar *values[]) {
      for (int pos=0,i=0; i < 8; i+=2) {
           for (int j=0; j < 12; j+=4) {
                button = gtk_button_new_with_label(values[pos]);
+               buttons[pos]=button;
                g_signal_connect(button, "pressed", G_CALLBACK(onClickPrint), (void*)&(values[pos][0]));     //onClick event
                gtk_grid_attach(GTK_GRID(grid), button, j, i, 4, 2);
                pos++;
@@ -99,6 +102,13 @@ void backspaceView(GtkWidget *view) {
      gtk_text_buffer_backspace(buffer,&iter,1,1 );
 }
 
+typedef struct {
+     GtkWidget *view;
+     GtkWidget *label;
+     GtkWidget *buttons[14];
+
+} Graphics;
+
 int main(int argc, char *argv[]) {
      GtkWidget *window;
      GtkWidget *vbox;
@@ -107,12 +117,14 @@ int main(int argc, char *argv[]) {
      GtkWidget *grid;
      GtkWidget *view;
      GtkWidget *label;
+     GtkWidget *buttons[14];
      gchar *values[12] = {
-          "1 ,.?", "2 abc", "3 def",
-          "4 ghi", "5 jkl", "6 mno",
-          "7 pqrs", "8 tuv", "9 wxyz",
-          "* +", "0 __", "#"
+          "1\n,.?", "2\nabc", "3\ndef",
+          "4\nghi", "5\njkl", "6\nmno",
+          "7\npqrs", "8\ntuv", "9\nwxyz",
+          "* +", "0_", "#"
      };
+
 
      gtk_init(&argc, &argv);
 
@@ -139,13 +151,13 @@ int main(int argc, char *argv[]) {
 
      //--------------------------Middle buttons----------------------------------
 
-     vbox2 = createMiddleButtons();
+     vbox2 = createMiddleButtons(buttons);
      gtk_box_pack_start(GTK_BOX(vbox), vbox2, FALSE,FALSE, 8);
 
 
      //--------------------------Grid----------------------------------
 
-     grid = createButtonGrid(values);
+     grid = createButtonGrid(values,buttons);
      gtk_box_pack_start(GTK_BOX(vbox), grid, FALSE,FALSE, 20);
 
 
@@ -153,6 +165,15 @@ int main(int argc, char *argv[]) {
      //--------------------------End----------------------------------
      gtk_widget_show_all(window);
      g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
+
+     //--------------------------Preping Struct----------------------------------
+     Graphics gr;
+     gr.view = view;
+     gr.label = label;
+     for(int i=0; i<14;i++) {
+          gr.buttons[i] = buttons[i];
+     }
 
 
      //--------------------------Testing Buffer Functions----------------------------------
@@ -163,6 +184,11 @@ int main(int argc, char *argv[]) {
      backspaceView(view);
      labelSetText(label, "ola alo hey");
 
+     char str[1] = "a";
+     for(int i=0; i<14;i++) {
+          gtk_button_set_label(GTK_BUTTON(gr.buttons[i]),str);
+          str[0]++;
+     }
 
      gtk_main();
 
