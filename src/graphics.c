@@ -3,7 +3,7 @@
 
 
 #include <gtk/gtk.h>
-
+#include "graphics.h"
 
 void onClickPrint(GtkApplication* app, gpointer user_data) {
      printf("Heelo: %c\n", *(char *)user_data );
@@ -102,18 +102,11 @@ void backspaceView(GtkWidget *view) {
      gtk_text_buffer_backspace(buffer,&iter,1,1 );
 }
 
-typedef struct {
-     GtkWidget *view;
-     GtkWidget *label;
-     GtkWidget *buttons[14];
 
-} Graphics;
-
-int main(int argc, char *argv[]) {
+Graphics graphics_init() {
      GtkWidget *window;
      GtkWidget *vbox;
      GtkWidget *vbox2;
-     GtkWidget *button;
      GtkWidget *grid;
      GtkWidget *view;
      GtkWidget *label;
@@ -126,7 +119,6 @@ int main(int argc, char *argv[]) {
      };
 
 
-     gtk_init(&argc, &argv);
 
      //--------------------------Window----------------------------------
      window = createWindow();
@@ -184,18 +176,12 @@ int main(int argc, char *argv[]) {
      backspaceView(view);
      labelSetText(label, "ola alo hey");
 
-     char str[1] = "a";
-     for(int i=0; i<14;i++) {
-          gtk_button_set_label(GTK_BUTTON(gr.buttons[i]),str);
-          str[0]++;
-     }
-
-     gtk_main();
+     // char str[1] = "a";
+     // for(int i=0; i<14;i++) {
+     //      gtk_button_set_label(GTK_BUTTON(gr.buttons[i]),str);
+     //      str[0]++;
+     // }
 
 
-
-
-
-
-     return 0;
+     return gr;
 }
