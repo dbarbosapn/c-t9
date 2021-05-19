@@ -1,4 +1,4 @@
-#include <linked_list.h>
+#include <linked_list_ext.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,8 +45,8 @@ void insert_word(TrieNode* root, char* word) {
 void trie_load_dict(TrieNode* root, FILE* dict) {
     char buffer[LOAD_DICT_BUF];
     while (fscanf(dict, "%s", buffer) != EOF) {
+        str_normalize(buffer);
         if (str_scan(buffer, LOAD_DICT_BUF)) {
-            str_to_lower(buffer);
             insert_word(root, buffer);
         }
     }
@@ -55,12 +55,11 @@ void trie_load_dict(TrieNode* root, FILE* dict) {
 /**
  * Searches for all the words with the given prefix. (Make sure the it's
  * lowercase)
+ * If a non-null hashtable is passed, it will be used to order the results
  * Returns a linked list
  **/
-Node* prefix_search(TrieNode* root, char* prefix) {
-    // TODO: PASS COMPARATOR TO THIS FUNCTION TO INSERT IN ORDER ON THE LIST (By
-    // frequency on the dict).
-
+Node* prefix_search(TrieNode* root, char* prefix, HashTable* ht,
+                    Node* starting_list) {
     TrieNode* start = root;
     for (int i = 0; prefix[i]; i++) {
         int index = prefix[i] - 'a';
@@ -70,23 +69,30 @@ Node* prefix_search(TrieNode* root, char* prefix) {
             return NULL;
         }
     }
-
-    return get_words(start, prefix);
+    Node* list = starting_list;
+    size_t prefix_s = sizeof(prefix);
+    char* copy = (char*)malloc(prefix_s);
+    memcpy(copy, prefix, prefix_s);
+    get_words(&list, start, copy, ht);
+    return list;
 }
 
 /**
  * Gets all the words using DFS. Remember to free the nodes' values when you
  * don't need them anymore!
  **/
-Node* get_words(TrieNode* root, char* current) {
+void get_words(Node** list, TrieNode* root, char* current, HashTable* ht) {
     int curr_len = strlen(current);
 
-    Node* head = NULL;
     if (root->is_word) {
-        head = create_node((void*)current, sizeof(char) * (curr_len + 1));
+        if (ht != NULL) {
+            *list = list_add_inorder_ht(*list, (void*)current,
+                                        sizeof(char) * (curr_len + 1), ht);
+        } else {
+            *list = list_prepend(*list, (void*)current,
+                                 sizeof(char) * (curr_len + 1));
+        }
     }
-
-    Node* curr = head;
 
     for (int i = 0; i < NUM_CHARS; i++) {
         if (root->children[i] != NULL) {
@@ -99,21 +105,46 @@ Node* get_words(TrieNode* root, char* current) {
             new_prefix[j] = i + 'a';
             new_prefix[j + 1] = '\0';
 
-            Node* n = get_words(root->children[i], new_prefix);
-
-            if (curr == NULL) {
-                head = n;
-                curr = head;
-            } else {
-                curr->next = n;
-            }
-            while (curr->next != NULL) curr = curr->next;
+            get_words(list, root->children[i], new_prefix, ht);
         }
     }
 
     if (!root->is_word) {
         free(current);
     }
+}
 
-    return head;
+/**
+ * Saves the trie in the given file. fp must have write binary permissions.
+ **/
+void trie_save(TrieNode* head, FILE* fp) {
+    fwrite(&head->is_word, sizeof(int), 1, fp);
+    int num_children = 0;
+    for (int i = 0; i < NUM_CHARS; i++) {
+        if (head->children[i] != NULL) num_children++;
+    }
+    fwrite(&num_children, sizeof(int), 1, fp);
+    for (int i = 0; i < NUM_CHARS; i++) {
+        if (head->children[i] != NULL) {
+            fwrite(&i, sizeof(int), 1, fp);
+            trie_save(head->children[i], fp);
+        }
+    }
+}
+
+/**
+ * Loads the trie from the given file. fp must have read binary permissions.
+ **/
+TrieNode* trie_load(FILE* fp) {
+    TrieNode* node = create_trie_node();
+    fread(&node->is_word, sizeof(int), 1, fp);
+    fflush(stdout);
+    int n;
+    fread(&n, sizeof(int), 1, fp);
+    for (int i = 0; i < n; i++) {
+        int index;
+        fread(&index, sizeof(int), 1, fp);
+        node->children[index] = trie_load(fp);
+    }
+    return node;
 }

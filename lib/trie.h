@@ -1,3 +1,7 @@
+#ifndef _TRIE
+#define _TRIE
+
+#include <int_hashtable.h>
 #include <linked_list.h>
 #include <stdio.h>
 
@@ -15,6 +19,13 @@ void insert_word(TrieNode* root, char* word);
 
 void trie_load_dict(TrieNode* root, FILE* dict);
 
-Node* prefix_search(TrieNode* root, char* prefix);
+Node* prefix_search(TrieNode* root, char* prefix, HashTable* ht,
+                    Node* starting_list);
 
-Node* get_words(TrieNode* root, char* current);
+void get_words(Node** list, TrieNode* root, char* current, HashTable* ht);
+
+void trie_save(TrieNode* head, FILE* fp);
+
+TrieNode* trie_load(FILE* fp);
+
+#endif

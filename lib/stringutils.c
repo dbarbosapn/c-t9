@@ -2,15 +2,14 @@
 #include <string.h>
 #include <stringutils.h>
 
-void str_to_lower(char* str) {
+void str_normalize(char* str) {
+    // TODO: Normalize accents too (?)
     for (int i = 0; str[i]; i++) {
         str[i] = tolower(str[i]);
     }
 }
 
 int str_scan(char* buffer, int buf_size) {
-    // TODO: Check UTF8 characters on isalpha
-
     char new_buf[buf_size];
     int str_size = 0;
 
