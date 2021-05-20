@@ -1,7 +1,5 @@
 #include "graphics.h"
 
-void addChar() {}
-
 GtkWidget *create_window() {
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "LABP - T9");
@@ -84,6 +82,14 @@ void set_view_text(GtkWidget *view, char *text) {
     gtk_text_buffer_set_text(buffer, text, -1);
 }
 
+gchar *get_view_text(GtkWidget *view) {
+    GtkTextIter start, end;
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+
+    gtk_text_buffer_get_bounds(buffer, &start, &end);
+    return gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+}
+
 void add_view_char(GtkWidget *view, char ch) {
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
     GtkTextIter iter;
@@ -93,14 +99,14 @@ void add_view_char(GtkWidget *view, char ch) {
     gtk_text_buffer_insert(buffer, &iter, str, 1);
 }
 
-void remove_view_char(GtkWidget *view) {
+gboolean remove_view_char(GtkWidget *view) {
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
     GtkTextIter iter;
     gtk_text_buffer_get_end_iter(buffer, &iter);
-    gtk_text_buffer_backspace(buffer, &iter, 1, 1);
+    return gtk_text_buffer_backspace(buffer, &iter, 1, 1);
 }
 
-Graphics graphics_init() {
+Graphics *graphics_init() {
     GtkWidget *window;
     GtkWidget *vbox;
     GtkWidget *vbox2;
@@ -140,21 +146,16 @@ Graphics graphics_init() {
 
     //-------------------------- End ----------------------------------
     gtk_widget_show_all(window);
-    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit),
+                     NULL);
 
     //-------------------------- Return Struct -----------------------
-    Graphics gr;
-    gr.view = view;
-    gr.label = label;
+    Graphics *gr = (Graphics *)malloc(sizeof(Graphics));
+    gr->view = view;
+    gr->label = label;
     for (int i = 0; i < 14; i++) {
-        gr.buttons[i] = buttons[i];
+        gr->buttons[i] = buttons[i];
     }
-
-    // char str[1] = "a";
-    // for(int i=0; i<14;i++) {
-    //      gtk_button_set_label(GTK_BUTTON(gr.buttons[i]),str);
-    //      str[0]++;
-    // }
 
     return gr;
 }
