@@ -31,10 +31,15 @@ GtkWidget *create_label() {
 
 GtkWidget *create_phone_buttons(GtkWidget *buttons[]) {
     GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
-    GtkWidget *button = gtk_button_new_with_label("cycle");
-    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, TRUE, 0);
-    buttons[12] = button;
-    button = gtk_button_new_with_label("delete");
+
+
+    GtkWidget *sw = gtk_switch_new();
+    gtk_switch_set_state(GTK_SWITCH(sw), 0);
+    gtk_box_pack_start(GTK_BOX(vbox), sw, FALSE, TRUE, 0);
+    buttons[12] = sw;
+
+
+    GtkWidget *button = gtk_button_new_with_label("delete");
     gtk_box_pack_end(GTK_BOX(vbox), button, FALSE, TRUE, 0);
     buttons[13] = button;
     return vbox;
@@ -88,6 +93,21 @@ gchar *get_view_text(GtkWidget *view) {
 
     gtk_text_buffer_get_bounds(buffer, &start, &end);
     return gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+}
+
+void switch_last_char(GtkWidget *view, char *charSec) {
+     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+     GtkTextIter iter;
+     gtk_text_buffer_get_end_iter(buffer, &iter);
+     gtk_text_iter_backward_char(&iter);
+
+     char lastCh = gtk_text_iter_get_char(&iter);
+     int i=0, size=strlen(charSec);
+     for(i=0; i < size && charSec[i] != lastCh; i++) { }
+     i++;
+     if(i == size) i=0;
+     remove_view_char(view);
+     add_view_char(view, charSec[i]);
 }
 
 void add_view_char(GtkWidget *view, char ch) {

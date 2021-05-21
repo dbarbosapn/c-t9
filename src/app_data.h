@@ -9,6 +9,10 @@ typedef struct {
     Graphics* gr;
     HashTable* ht;
     TrieNode* trie;
+    int *currButton;
+    int *lastButtonPressed;
+    int *lastClickTime;
+    int *t9;
 } AppData;
 
 #endif

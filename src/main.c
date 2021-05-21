@@ -64,33 +64,29 @@ HashTable* load_hashtable() {
     }
 }
 
+AppData *copy_data(AppData *data) {
+     AppData* newdata = (AppData*)malloc(sizeof(AppData));
+     newdata->gr = data->gr;
+     newdata->trie = data->trie;
+     newdata->ht = data->ht;
+     newdata->currButton = data->currButton;
+     newdata->lastButtonPressed = data->lastButtonPressed;
+     newdata->lastClickTime = data->lastClickTime;
+     return newdata;
+}
+
 void setup_callbacks(AppData* data) {
-    g_signal_connect(G_OBJECT(data->gr->buttons[0]), "clicked",
-                     G_CALLBACK(on_button_1_clicked), data);
-    g_signal_connect(G_OBJECT(data->gr->buttons[1]), "clicked",
-                     G_CALLBACK(on_button_2_clicked), data);
-    g_signal_connect(G_OBJECT(data->gr->buttons[2]), "clicked",
-                     G_CALLBACK(on_button_3_clicked), data);
-    g_signal_connect(G_OBJECT(data->gr->buttons[3]), "clicked",
-                     G_CALLBACK(on_button_4_clicked), data);
-    g_signal_connect(G_OBJECT(data->gr->buttons[4]), "clicked",
-                     G_CALLBACK(on_button_5_clicked), data);
-    g_signal_connect(G_OBJECT(data->gr->buttons[5]), "clicked",
-                     G_CALLBACK(on_button_6_clicked), data);
-    g_signal_connect(G_OBJECT(data->gr->buttons[6]), "clicked",
-                     G_CALLBACK(on_button_7_clicked), data);
-    g_signal_connect(G_OBJECT(data->gr->buttons[7]), "clicked",
-                     G_CALLBACK(on_button_8_clicked), data);
-    g_signal_connect(G_OBJECT(data->gr->buttons[8]), "clicked",
-                     G_CALLBACK(on_button_9_clicked), data);
-    g_signal_connect(G_OBJECT(data->gr->buttons[9]), "clicked",
-                     G_CALLBACK(on_button_l_clicked), data);
-    g_signal_connect(G_OBJECT(data->gr->buttons[10]), "clicked",
-                     G_CALLBACK(on_button_0_clicked), data);
-    g_signal_connect(G_OBJECT(data->gr->buttons[11]), "clicked",
-                     G_CALLBACK(on_button_r_clicked), data);
+     for(int i=0; i<11;i++) {
+          AppData *newData = copy_data(data);
+          newData->currButton = (int *)malloc(sizeof(int));
+          *newData->currButton = i;
+          g_signal_connect(G_OBJECT(data->gr->buttons[i]), "clicked", G_CALLBACK(on_button_clicked), newData);
+     }
+
+    g_signal_connect(G_OBJECT(data->gr->buttons[12]), "state_set",
+                     G_CALLBACK(on_switch), data);
     g_signal_connect(G_OBJECT(data->gr->buttons[13]), "clicked",
-                     G_CALLBACK(on_button_delete_clicked), data);
+                     G_CALLBACK(on_delete_clicked), data);
     // TODO: Use the "pressed" and "released" signals (with time.h) to check
     // if button is being held for > 1 second. In that case, use the number,
     // not the values (specific callback for that).
@@ -106,6 +102,12 @@ int main(int argc, char* argv[]) {
     data->gr = gr;
     data->trie = trie;
     data->ht = ht;
+    data->lastButtonPressed = (int *)malloc(sizeof(int));
+    *data->lastButtonPressed = -1;
+    data->lastClickTime = (int *)malloc(sizeof(int));
+    *data->lastClickTime = 0;
+    data->t9 = (int *)malloc(sizeof(int));
+    *data->t9 = 0;
     setup_callbacks(data);
     gtk_main();
 
