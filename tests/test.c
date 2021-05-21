@@ -18,7 +18,7 @@ TrieNode* trie_test(HashTable* ht) {
     FILE* fp = fopen("../data/lusiadas.txt", "r");
     trie_load_dict(root, fp);
 
-    char* input_val = "arm";
+    char* input_val = "aju";
 
     char* input = (char*)malloc(sizeof(input_val));
     memcpy(input, input_val, sizeof(input_val));

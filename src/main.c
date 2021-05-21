@@ -1,13 +1,16 @@
+#include <gtk/gtk.h>
 #include <int_hashtable.h>
 #include <simple_input.h>
 #include <stdio.h>
-#include <gtk/gtk.h>
-#include "graphics.h"
 #include <string.h>
 #include <stringutils.h>
 #include <t9_keys.h>
 #include <trie.h>
 #include <unistd.h>
+
+#include "app_data.h"
+#include "callbacks.h"
+#include "graphics.h"
 
 int file_exists(char* filename) { return access(filename, F_OK) == 0; }
 
@@ -61,70 +64,50 @@ HashTable* load_hashtable() {
     }
 }
 
-/**
- * TODO: Add this comment
- **/
-Node* run_t9(TrieNode* trie, HashTable* ht, char* input) {
-    Node* permutations = get_permutations(input);
-    Node* curr = permutations;
-
-    Node* result = NULL;
-
-    while (curr != NULL) {
-        char* prefix = curr->value;
-
-        result = prefix_search(trie, prefix, ht, result);
-
-        free(prefix);
-        Node* prev = curr;
-        curr = curr->next;
-        free(prev);
-    }
-
-    return result;
+void setup_callbacks(AppData* data) {
+    g_signal_connect(G_OBJECT(data->gr->buttons[0]), "clicked",
+                     G_CALLBACK(on_button_1_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[1]), "clicked",
+                     G_CALLBACK(on_button_2_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[2]), "clicked",
+                     G_CALLBACK(on_button_3_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[3]), "clicked",
+                     G_CALLBACK(on_button_4_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[4]), "clicked",
+                     G_CALLBACK(on_button_5_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[5]), "clicked",
+                     G_CALLBACK(on_button_6_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[6]), "clicked",
+                     G_CALLBACK(on_button_7_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[7]), "clicked",
+                     G_CALLBACK(on_button_8_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[8]), "clicked",
+                     G_CALLBACK(on_button_9_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[9]), "clicked",
+                     G_CALLBACK(on_button_l_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[10]), "clicked",
+                     G_CALLBACK(on_button_0_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[11]), "clicked",
+                     G_CALLBACK(on_button_r_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[13]), "clicked",
+                     G_CALLBACK(on_button_delete_clicked), data);
+    // TODO: Use the "pressed" and "released" signals (with time.h) to check
+    // if button is being held for > 1 second. In that case, use the number,
+    // not the values (specific callback for that).
 }
 
-int main(int argc, char const* argv[]) {
+int main(int argc, char* argv[]) {
     TrieNode* trie = load_trie();
     HashTable* ht = load_hashtable();
 
-    while (1) {
-        printf("Insert the input (numeric 2-9): ");
-        char* input = read_string_input();
-
-        // For debug only
-        if (strcmp(input, "quit") == 0) {
-            FILE* fp = fopen("data/trie.bin", "wb");
-            trie_save(trie, fp);
-            fclose(fp);
-            FILE* fp2 = fopen("data/hashtable.bin", "wb");
-            hashtable_save(ht, fp2);
-            fclose(fp2);
-            return 0;
-        }
-        putchar('\n');
-
-        Node* list = run_t9(trie, ht, input);
-        free(input);
-
-        Node* curr = list;
-        while (curr != NULL) {
-            if (curr != list) printf(", ");
-            printf("%s: %d", (char*)curr->value,
-                   hashtable_get(ht, (char*)curr->value));
-
-            free(curr->value);
-            Node* prev = curr;
-            curr = curr->next;
-            free(prev);
-        }
-
-        printf("\n\n");
-    }
-  
-    // gtk_init(&argc, &argv);
-    // Graphics gr = graphics_init();
-    // gtk_main();
+    gtk_init(&argc, &argv);
+    Graphics* gr = graphics_init();
+    AppData* data = (AppData*)malloc(sizeof(AppData));
+    data->gr = gr;
+    data->trie = trie;
+    data->ht = ht;
+    setup_callbacks(data);
+    gtk_main();
 
     return 0;
 }
