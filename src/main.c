@@ -64,30 +64,20 @@ HashTable* load_hashtable() {
     }
 }
 
-AppData *copy_data(AppData *data) {
-     AppData* newdata = (AppData*)malloc(sizeof(AppData));
-     newdata->gr = data->gr;
-     newdata->trie = data->trie;
-     newdata->ht = data->ht;
-     newdata->currButton = data->currButton;
-     newdata->lastButtonPressed = data->lastButtonPressed;
-     newdata->lastClickTime = data->lastClickTime;
-     return newdata;
-}
-
 void setup_callbacks(AppData* data) {
-     for(int i=0; i<11;i++) {
-          AppData *newData = copy_data(data);
-          newData->currButton = (int *)malloc(sizeof(int));
-          *newData->currButton = i;
-          g_signal_connect(G_OBJECT(data->gr->buttons[i]), "clicked", G_CALLBACK(on_button_clicked), newData);
-     }
+    for (int i = 0; i < 11; i++) {
+        ButtonData* bdata = (ButtonData*)malloc(sizeof(ButtonData));
+        bdata->button = i;
+        bdata->app_data = data;
+        g_signal_connect(G_OBJECT(data->gr->buttons[i]), "pressed",
+                         G_CALLBACK(on_button_clicked), bdata);
+    }
 
-    g_signal_connect(G_OBJECT(data->gr->buttons[12]), "state_set",
-                     G_CALLBACK(on_switch), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[12]), "notify::active",
+                     G_CALLBACK(on_t9_switch), data);
     g_signal_connect(G_OBJECT(data->gr->buttons[13]), "clicked",
                      G_CALLBACK(on_delete_clicked), data);
-    // TODO: Use the "pressed" and "released" signals (with time.h) to check
+    // TODO: Use the "released" signal (with time.h) to check
     // if button is being held for > 1 second. In that case, use the number,
     // not the values (specific callback for that).
 }
@@ -102,12 +92,9 @@ int main(int argc, char* argv[]) {
     data->gr = gr;
     data->trie = trie;
     data->ht = ht;
-    data->lastButtonPressed = (int *)malloc(sizeof(int));
-    *data->lastButtonPressed = -1;
-    data->lastClickTime = (int *)malloc(sizeof(int));
-    *data->lastClickTime = 0;
-    data->t9 = (int *)malloc(sizeof(int));
-    *data->t9 = 0;
+    data->last_button_pressed = -1;
+    data->last_click_time = 0;
+    data->t9_mode = 0;
     setup_callbacks(data);
     gtk_main();
 
