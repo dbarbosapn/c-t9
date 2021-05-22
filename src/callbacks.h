@@ -2,9 +2,7 @@
 #define _CALLBACKS
 
 void on_button_clicked(GtkButton* button, gpointer param);
-void on_button_0_clicked(GtkButton* button, gpointer param);
-void on_button_r_clicked(GtkButton* button, gpointer param);
 void on_delete_clicked(GtkButton* button, gpointer param);
-void on_t9_switch(GtkSwitch* sw, gboolean state, AppData* data);
+void on_t9_switch(GObject* sw, GParamSpec* pspec, AppData* data);
 
 #endif
