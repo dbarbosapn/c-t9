@@ -4,8 +4,13 @@
 #include "app_data.h"
 #include "graphics.h"
 
+const char* values[] = {",.?",  "abc", "def",  "ghi", "jkl", "mno",
+                        "pqrs", "tuv", "wxyz", "*+",  " ",   "#"};
+
 /**
  * Runs the T9 algorithm. Returns the ordered list of words
+ * TODO: This should be optimized. The permutations should be passed instead of
+ * the input
  **/
 Node* run_t9(TrieNode* trie, HashTable* ht, char* input) {
     Node* permutations = get_permutations(input);
@@ -33,7 +38,6 @@ void free_t9_list(Node* list) {
     Node* curr = list;
     while (curr != NULL) {
         free(curr->value);
-
         Node* prev = curr;
         curr = curr->next;
         free(prev);
@@ -64,9 +68,6 @@ void update_label(AppData* data) {
     set_label_text(data->gr->label, buffer);
 }
 
-char* values[] = {",.?",  "abc", "def",  "ghi", "jkl", "mno",
-                  "pqrs", "tuv", "wxyz", "*+",  " ",   "#"};
-
 void on_click_not_t9(int button, AppData* data) {
     time_t curr_time = time(NULL);
     double time_diff = difftime(curr_time, data->last_click_time);
@@ -86,15 +87,69 @@ void on_click_not_t9(int button, AppData* data) {
     data->last_char_index = char_index;
 }
 
-void on_click_t9(int button, AppData* data) {
-    // TODO
+void update_labels_view(AppData* data) {
+    if (data->cur_node != NULL) {
+        // TODO: Update labels and view
+    } else {
+        // TODO: Update labels with "Add to
+        // Dictionary"
+    }
 }
 
-void on_button_clicked(GtkButton* button, ButtonData* data) {
+void t9_cycle(AppData* data) {
+    if (data->cur_node != NULL)
+        data->cur_node = data->cur_node->next;
+    else
+        data->cur_node = data->t9_words;
+
+    update_labels_view(data);
+}
+
+void on_click_t9(int button, AppData* data) {
+    time_t curr_time = time(NULL);
+    data->last_click_time = curr_time;
+
+    size_t len = strlen(data->t9_buffer);
+    if (button <= 8) {
+        data->t9_buffer[len] = '1' + button;
+        data->t9_buffer[len + 1] = '\0';
+        free_t9_list(data->t9_words);
+        data->t9_words = run_t9(data->trie, data->ht, data->t9_buffer);
+        data->cur_node = data->t9_words;
+        update_labels_view(data);
+    } else if (button == 9) {
+        t9_cycle(data);
+    } else if (button == 10) {
+        add_view_char(data->gr->view, ' ');
+        data->t9_buffer[0] = '\0';
+        free_t9_list(data->t9_words);
+        data->t9_words = NULL;
+        data->cur_node = NULL;
+    }
+}
+
+void on_button_pressed(GtkButton* button, ButtonData* data) {
     if (data->app_data->t9_mode) {
         on_click_t9(data->button, data->app_data);
     } else {
         on_click_not_t9(data->button, data->app_data);
+    }
+}
+
+void on_button_released(GtkButton* button, ButtonData* data) {
+    int btn = data->button;
+    AppData* app_data = data->app_data;
+
+    time_t curr_time = time(NULL);
+    double time_diff = difftime(curr_time, app_data->last_click_time);
+
+    if (!app_data->t9_mode && time_diff > 0.5) {
+        if (btn <= 8)
+            switch_last_char(app_data->gr->view, '1' + btn);
+        else if (btn == 9)
+            add_view_char(app_data->gr->view, '*');
+        else if (btn == 10)
+            switch_last_char(app_data->gr->view, '0');
     }
 }
 
@@ -104,4 +159,9 @@ void on_t9_switch(GObject* sw, GParamSpec* pspec, AppData* data) {
 
 void on_delete_clicked(GtkButton* button, AppData* data) {
     remove_view_char(data->gr->view);
+
+    size_t len = strlen(data->t9_buffer);
+    if (data->t9_mode && len > 0) {
+        data->t9_buffer[len - 1] = '\0';
+    }
 }

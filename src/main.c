@@ -70,16 +70,29 @@ void setup_callbacks(AppData* data) {
         bdata->button = i;
         bdata->app_data = data;
         g_signal_connect(G_OBJECT(data->gr->buttons[i]), "pressed",
-                         G_CALLBACK(on_button_clicked), bdata);
+                         G_CALLBACK(on_button_pressed), bdata);
+        g_signal_connect(G_OBJECT(data->gr->buttons[i]), "released",
+                         G_CALLBACK(on_button_released), bdata);
     }
 
     g_signal_connect(G_OBJECT(data->gr->buttons[12]), "notify::active",
                      G_CALLBACK(on_t9_switch), data);
     g_signal_connect(G_OBJECT(data->gr->buttons[13]), "clicked",
                      G_CALLBACK(on_delete_clicked), data);
-    // TODO: Use the "released" signal (with time.h) to check
-    // if button is being held for > 1 second. In that case, use the number,
-    // not the values (specific callback for that).
+}
+
+void initialize_data(AppData* data, Graphics* gr, TrieNode* trie,
+                     HashTable* ht) {
+    data->gr = gr;
+    data->trie = trie;
+    data->ht = ht;
+    data->last_button_pressed = -1;
+    data->last_click_time = 0;
+    data->t9_mode = 0;
+    data->t9_buffer = (char*)malloc(sizeof(char) * 30);
+    data->t9_buffer[0] = '\0';
+    data->cur_node = NULL;
+    data->t9_words = NULL;
 }
 
 int main(int argc, char* argv[]) {
@@ -89,12 +102,7 @@ int main(int argc, char* argv[]) {
     gtk_init(&argc, &argv);
     Graphics* gr = graphics_init();
     AppData* data = (AppData*)malloc(sizeof(AppData));
-    data->gr = gr;
-    data->trie = trie;
-    data->ht = ht;
-    data->last_button_pressed = -1;
-    data->last_click_time = 0;
-    data->t9_mode = 0;
+    initialize_data(data, gr, trie, ht);
     setup_callbacks(data);
     gtk_main();
 
