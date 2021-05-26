@@ -19,4 +19,6 @@ void set_label_text(GtkWidget *label, char *text);
 
 gchar *get_view_text(GtkWidget *view);
 
+void switch_last_char(GtkWidget *view, char ch);
+
 #endif
