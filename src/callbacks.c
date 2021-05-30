@@ -87,23 +87,68 @@ void on_click_not_t9(int button, AppData* data) {
     data->last_char_index = char_index;
 }
 
+
+
 void update_labels_view(AppData* data) {
     if (data->cur_node != NULL) {
-        // TODO: Update labels and view
+        fill_label(data->gr->label, data->cur_node);
     } else {
-        // TODO: Update labels with "Add to
-        // Dictionary"
+         set_label_text(data->gr->label, "Add to dictionary");
     }
 }
 
-void t9_cycle(AppData* data) {
-    if (data->cur_node != NULL)
-        data->cur_node = data->cur_node->next;
-    else
-        data->cur_node = data->t9_words;
-
-    update_labels_view(data);
+char *get_semi_word(Node *curr, size_t size) {
+     if(curr==NULL) return NULL;
+     if(curr->value==NULL) return NULL;
+     char *curr_word = curr->value;
+     char *word = (char *)malloc(sizeof(char)*size+1);
+     for(int i=0;i<size;i++) {
+          word[i]=curr_word[i];
+     }
+     word[size]='\0';
+     return word;
 }
+
+void update_view(AppData* data) {
+     if(data->t9_words == NULL) return;
+     if(data->cur_node == NULL) return;
+
+     size_t size = strlen(data->t9_buffer);
+     remove_view_last_word(data->gr->view);
+
+     char *word = get_semi_word(data->cur_node, size);
+
+     add_view_word(data->gr->view, word);
+     free(word);
+}
+
+void t9_cycle(AppData* data) {
+     if(data->cur_node == NULL) {
+          data->cur_node = data->t9_words;
+     }
+     else {
+          data->cur_node = data->cur_node->next;
+     }
+    update_labels_view(data);
+    update_view(data);
+}
+
+//TODO: isto está bem?
+void reset_t9(AppData *data) {
+     data->t9_buffer[0] = '\0';
+     set_label_text(data->gr->label, "");
+}
+
+void t9_select(AppData* data) {
+     if(data->cur_node==NULL) return;
+     if(data->cur_node->value==NULL) return;
+     remove_view_last_word(data->gr->view);
+     add_view_word(data->gr->view, data->cur_node->value);
+     add_view_char(data->gr->view, ' ');
+
+     reset_t9(data);
+}
+
 
 void on_click_t9(int button, AppData* data) {
     time_t curr_time = time(NULL);
@@ -117,6 +162,7 @@ void on_click_t9(int button, AppData* data) {
         data->t9_words = run_t9(data->trie, data->ht, data->t9_buffer);
         data->cur_node = data->t9_words;
         update_labels_view(data);
+        update_view(data);
     } else if (button == 9) {
         t9_cycle(data);
     } else if (button == 10) {
@@ -155,6 +201,9 @@ void on_button_released(GtkButton* button, ButtonData* data) {
 
 void on_t9_switch(GObject* sw, GParamSpec* pspec, AppData* data) {
     data->t9_mode = gtk_switch_get_active(GTK_SWITCH(sw));
+    if(!data->t9_mode) {
+         set_label_text(data->gr->label, "");
+    }
 }
 
 void on_delete_clicked(GtkButton* button, AppData* data) {
@@ -164,4 +213,30 @@ void on_delete_clicked(GtkButton* button, AppData* data) {
     if (data->t9_mode && len > 0) {
         data->t9_buffer[len - 1] = '\0';
     }
+
+    // update_label(data); TODO: this crashes the app
+}
+
+void on_plus_clicked(GtkButton* button, AppData* data) {
+     if (data->t9_mode) {
+          t9_cycle(data);
+     } else {
+          on_click_not_t9(9, data);
+     }
+}
+
+void on_zero_clicked(GtkButton* button, AppData* data) {
+     if (data->t9_mode) {
+          t9_select(data);
+     } else {
+         on_click_not_t9(10, data);
+     }
+}
+
+void on_hashtag_clicked(GtkButton* button, AppData* data) {
+     if (data->t9_mode) {
+         t9_select(data);
+     } else {
+         on_click_not_t9(11, data);
+     }
 }
