@@ -14,6 +14,10 @@ typedef struct {
     int last_char_index;
     time_t last_click_time;
     gboolean t9_mode;
+
+    char* t9_buffer;
+    Node* t9_words;
+    Node* cur_node;
 } AppData;
 
 typedef struct {

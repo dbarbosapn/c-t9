@@ -107,11 +107,11 @@ void add_view_char(GtkWidget *view, char ch) {
     gtk_text_buffer_insert(buffer, &iter, str, 1);
 }
 
-gboolean remove_view_char(GtkWidget *view) {
+void remove_view_char(GtkWidget *view) {
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
     GtkTextIter iter;
     gtk_text_buffer_get_end_iter(buffer, &iter);
-    return gtk_text_buffer_backspace(buffer, &iter, 1, 1);
+    gtk_text_buffer_backspace(buffer, &iter, 1, 1);
 }
 
 Graphics *graphics_init() {
