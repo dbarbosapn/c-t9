@@ -65,12 +65,14 @@ HashTable* load_hashtable() {
 }
 
 void setup_callbacks(AppData* data) {
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 12; i++) {
         ButtonData* bdata = (ButtonData*)malloc(sizeof(ButtonData));
         bdata->button = i;
         bdata->app_data = data;
-        g_signal_connect(G_OBJECT(data->gr->buttons[i]), "pressed",
-                         G_CALLBACK(on_button_pressed), bdata);
+        if (i < 9) {
+            g_signal_connect(G_OBJECT(data->gr->buttons[i]), "pressed",
+                             G_CALLBACK(on_button_pressed), bdata);
+        }
         g_signal_connect(G_OBJECT(data->gr->buttons[i]), "released",
                          G_CALLBACK(on_button_released), bdata);
     }
@@ -80,8 +82,7 @@ void setup_callbacks(AppData* data) {
     g_signal_connect(G_OBJECT(data->gr->buttons[10]), "pressed",
                      G_CALLBACK(on_zero_clicked), data);
     g_signal_connect(G_OBJECT(data->gr->buttons[11]), "pressed",
-                     G_CALLBACK(on_hashtag_clicked), data);
-
+                     G_CALLBACK(on_hash_clicked), data);
 
     g_signal_connect(G_OBJECT(data->gr->buttons[12]), "notify::active",
                      G_CALLBACK(on_t9_switch), data);
@@ -101,6 +102,8 @@ void initialize_data(AppData* data, Graphics* gr, TrieNode* trie,
     data->t9_buffer[0] = '\0';
     data->cur_node = NULL;
     data->t9_words = NULL;
+    data->adding_word = 0;
+    data->saved_text = NULL;
 }
 
 int main(int argc, char* argv[]) {

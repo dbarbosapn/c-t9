@@ -18,6 +18,9 @@ typedef struct {
     char* t9_buffer;
     Node* t9_words;
     Node* cur_node;
+
+    int adding_word;
+    char* saved_text;
 } AppData;
 
 typedef struct {
