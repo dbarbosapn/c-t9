@@ -134,7 +134,7 @@ void t9_select(AppData* data) {
     remove_view_last_word(data->gr->view);
     char* word = data->cur_node->value;
     add_view_word(data->gr->view, word);
-    hashtable_put(data->ht, word, hashtable_get(data->ht, word));
+    hashtable_put(data->ht, word, hashtable_get(data->ht, word) + 1);
     add_view_char(data->gr->view, ' ');
 
     reset_t9(data);
