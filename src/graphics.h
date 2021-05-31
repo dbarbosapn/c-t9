@@ -12,7 +12,7 @@ typedef struct {
 
 Graphics *graphics_init();
 
-void add_view_char(GtkWidget *view, char *ch);
+void add_view_char(GtkWidget *view, char ch);
 
 void remove_view_char(GtkWidget *view);
 
@@ -22,9 +22,7 @@ void set_label_text(GtkWidget *label, char *text);
 
 gchar *get_view_text(GtkWidget *view);
 
-void set_view_text(GtkWidget *view, char *text);
-
-void switch_last_char(GtkWidget *view, char *ch);
+void switch_last_char(GtkWidget *view, char ch);
 
 void fill_label(GtkWidget *label, Node *curr); //curr != null
 

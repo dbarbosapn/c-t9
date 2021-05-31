@@ -14,8 +14,6 @@ typedef struct {
     int last_char_index;
     time_t last_click_time;
     gboolean t9_mode;
-    gboolean adding_to_dict;
-    char *prev_text;
 
     char* t9_buffer;
     Node* t9_words;
