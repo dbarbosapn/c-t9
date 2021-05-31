@@ -6,6 +6,7 @@
 #include "linked_list.h"
 
 typedef struct {
+    GtkWidget *window;
     GtkWidget *view;
     GtkWidget *label;
     GtkWidget *buttons[14];

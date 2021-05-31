@@ -220,11 +220,10 @@ Graphics *graphics_init() {
 
     //-------------------------- End ----------------------------------
     gtk_widget_show_all(window);
-    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit),
-                     NULL);
 
     //-------------------------- Return Struct -----------------------
     Graphics *gr = (Graphics *)malloc(sizeof(Graphics));
+    gr->window = window;
     gr->view = view;
     gr->label = label;
     for (int i = 0; i < 14; i++) {

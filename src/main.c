@@ -64,6 +64,24 @@ HashTable* load_hashtable() {
     }
 }
 
+void save_trie(TrieNode* trie) {
+    FILE* fp = fopen("data/trie.bin", "wb");
+    trie_save(trie, fp);
+    fclose(fp);
+}
+
+void save_hashtable(HashTable* ht) {
+    FILE* fp = fopen("data/hashtable.bin", "wb");
+    hashtable_save(ht, fp);
+    fclose(fp);
+}
+
+void on_quit(GtkWidget* window, AppData* data) {
+    save_trie(data->trie);
+    save_hashtable(data->ht);
+    gtk_main_quit();
+}
+
 void setup_callbacks(AppData* data) {
     for (int i = 0; i < 12; i++) {
         ButtonData* bdata = (ButtonData*)malloc(sizeof(ButtonData));
@@ -88,6 +106,9 @@ void setup_callbacks(AppData* data) {
                      G_CALLBACK(on_t9_switch), data);
     g_signal_connect(G_OBJECT(data->gr->buttons[13]), "clicked",
                      G_CALLBACK(on_delete_clicked), data);
+
+    g_signal_connect(G_OBJECT(data->gr->window), "destroy", G_CALLBACK(on_quit),
+                     data);
 }
 
 void initialize_data(AppData* data, Graphics* gr, TrieNode* trie,
