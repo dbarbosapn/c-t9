@@ -90,7 +90,7 @@ void update_view(AppData* data) {
 
     size_t size = strlen(data->t9_buffer);
 
-    if (size > 1) remove_view_last_word(data->gr->view);
+    if (size > 0) remove_view_last_word(data->gr->view);
 
     char* word = get_semi_word(data->cur_node, size);
 
