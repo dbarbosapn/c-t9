@@ -3,9 +3,10 @@
 
 #include "app_data.h"
 #include "graphics.h"
-
-const char* values[] = {",.?",  "abc", "def",  "ghi", "jkl", "mno",
-                        "pqrs", "tuv", "wxyz", "*+",  " ",   "#"};
+                                               //ẽ crasha
+char* values[] = {",.?",  "abcàáãâçABCÀÁÃÂÇ", "defèéêDEFÈÉÊ",  "ghiìíĩîGHIÌÍĨÎ", "jklJKL", "mnoòóõôMNOÒÓÕÔ",
+                        "pqrsPQRS", "tuvùúũûTUVÙÚŨÛ", "wxyzWXYZ", "*+",  " ",   "#"};
+//TODO: make const by changing switch_last_char and add_view_char
 
 /**
  * Runs the T9 algorithm. Returns the ordered list of words
@@ -44,24 +45,6 @@ void free_t9_list(Node* list) {
     }
 }
 
-void on_click_not_t9(int button, AppData* data) {
-    time_t curr_time = time(NULL);
-    double time_diff = difftime(curr_time, data->last_click_time);
-
-    data->last_click_time = curr_time;
-
-    int char_index = 0;
-
-    if (data->last_button_pressed == button && time_diff <= 1) {
-        char_index = (data->last_char_index + 1) % strlen(values[button]);
-        switch_last_char(data->gr->view, values[button][char_index]);
-    } else {
-        add_view_char(data->gr->view, values[button][0]);
-    }
-
-    data->last_button_pressed = button;
-    data->last_char_index = char_index;
-}
 
 void update_labels_view(AppData* data) {
     if (data->cur_node != NULL) {
@@ -124,14 +107,50 @@ void reset_t9(AppData* data) {
     data->cur_node = NULL;
 }
 
+
+
 void t9_select(AppData* data) {
-    if (data->cur_node == NULL) return;
+    if (data->cur_node == NULL && strlen(data->t9_buffer) != 0) { //add to dict selected
+         data->adding_to_dict = 1;
+         data->t9_mode = 0;
+         remove_view_last_word(data->gr->view);
+         data->prev_text = get_view_text(data->gr->view);
+         set_view_text(data->gr->view, "");
+         set_label_text(data->gr->label, "Press # when done");
+         return;
+    }
     if (data->cur_node->value == NULL) return;
     remove_view_last_word(data->gr->view);
     add_view_word(data->gr->view, data->cur_node->value);
-    add_view_char(data->gr->view, ' ');
+    char ch = ' ';
+    add_view_char(data->gr->view, &ch);
 
     reset_t9(data);
+}
+
+void on_click_not_t9(int button, AppData* data) {
+    time_t curr_time = time(NULL);
+    double time_diff = difftime(curr_time, data->last_click_time);
+
+    data->last_click_time = curr_time;
+
+    int char_index = 0;
+
+    if (data->last_button_pressed == button && time_diff <= 1) {
+        char_index = (data->last_char_index + 1) % strlen(values[button]);
+        switch_last_char(data->gr->view, &values[button][char_index]);
+    } else {
+         char_index = 0;
+        add_view_char(data->gr->view, &values[button][char_index]);
+    }
+
+    char last_char = values[button][char_index];
+    if(last_char<0  && last_char>=-64) {
+         char_index++;
+    }
+
+    data->last_button_pressed = button;
+    data->last_char_index = char_index;
 }
 
 void on_click_t9(int button, AppData* data) {
@@ -162,12 +181,19 @@ void on_button_released(GtkButton* button, ButtonData* data) {
     double time_diff = difftime(curr_time, app_data->last_click_time);
 
     if (!app_data->t9_mode && time_diff > 0.5) {
-        if (btn <= 8)
-            switch_last_char(app_data->gr->view, '1' + btn);
-        else if (btn == 9)
-            add_view_char(app_data->gr->view, '*');
-        else if (btn == 10)
-            switch_last_char(app_data->gr->view, '0');
+         char ch;
+        if (btn <= 8){
+             ch='1' + btn;
+            switch_last_char(app_data->gr->view, &ch);
+       }
+        else if (btn == 9) {
+             ch='*';
+            add_view_char(app_data->gr->view, &ch);
+       }
+        else if (btn == 10) {
+             ch='0';
+            switch_last_char(app_data->gr->view, &ch);
+       }
     }
 }
 
@@ -208,9 +234,26 @@ void on_zero_clicked(GtkButton* button, AppData* data) {
 }
 
 void on_hashtag_clicked(GtkButton* button, AppData* data) {
-    if (data->t9_mode) {
-        t9_select(data);
-    } else {
-        on_click_not_t9(11, data);
-    }
+     if (data->t9_mode) {
+          t9_select(data);
+     } else if(data->adding_to_dict){
+          data->adding_to_dict = 0;
+          data->t9_mode = 1;
+          reset_t9(data);
+          char *word = get_view_text(data->gr->view);
+          //TODO: add word to dict
+          set_view_text(data->gr->view, data->prev_text);
+          add_view_word(data->gr->view, word);
+          char ch = ' ';
+          add_view_char(data->gr->view, &ch);
+
+          set_label_text(data->gr->label, "");
+
+          free(word);
+          free(data->prev_text);
+          data->prev_text = NULL;
+     }
+     else {
+          on_click_not_t9(11, data);
+     }
 }

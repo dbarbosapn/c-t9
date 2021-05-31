@@ -97,6 +97,8 @@ void initialize_data(AppData* data, Graphics* gr, TrieNode* trie,
     data->last_button_pressed = -1;
     data->last_click_time = 0;
     data->t9_mode = 0;
+    data->adding_to_dict = 0;
+    data->prev_text = NULL;
     data->t9_buffer = (char*)malloc(sizeof(char) * 30);
     data->t9_buffer[0] = '\0';
     data->cur_node = NULL;

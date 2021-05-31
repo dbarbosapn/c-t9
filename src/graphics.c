@@ -1,5 +1,7 @@
 #include "graphics.h"
 
+const int LABEL_LIMIT = 20;
+
 GtkWidget *create_window() {
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "LABP - T9");
@@ -74,7 +76,7 @@ GtkWidget *create_button_grid(gchar *numbers[], gchar *values[],
 
 // SIZE LIMIT: 26
 void set_label_text(GtkWidget *label, char *text) {
-    if (strlen(text) > 26) {
+    if (strlen(text) > LABEL_LIMIT) {
         text = "Error: buffer too long";
     }
     gtk_label_set_text(GTK_LABEL(label), text);
@@ -93,18 +95,32 @@ gchar *get_view_text(GtkWidget *view) {
     return gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
 }
 
-void switch_last_char(GtkWidget *view, char ch) {
+void switch_last_char(GtkWidget *view, char *ch) {
     remove_view_char(view);
     add_view_char(view, ch);
 }
 
-void add_view_char(GtkWidget *view, char ch) {
+void add_view_char(GtkWidget *view, char *ch) {
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
     GtkTextIter iter;
     gtk_text_buffer_get_end_iter(buffer, &iter);
-    char str[1];
-    str[0] = ch;
-    gtk_text_buffer_insert(buffer, &iter, str, 1);
+
+    int size;
+    if(ch[0] <0 && ch[0] >= -64) { //2 byte char
+         size = 2;
+    }
+    else {
+         size = 1;
+    }
+
+    char str[size];
+    for(int i=0; i<size;i++) {
+         str[i] = ch[i];
+    }
+    str[size]='\0';
+
+
+    gtk_text_buffer_insert(buffer, &iter, str, size);
 }
 
 void remove_view_char(GtkWidget *view) {
@@ -143,9 +159,14 @@ void fill_label(GtkWidget *label, Node *curr) {
     while (curr != NULL) {
         word = (char *)curr->value;
         size = strlen(word);
-        totalSize += size + 2;
+        if(first) {
+             totalSize += size ;
+        }
+        else {
+             totalSize += size + 2;
+        }
 
-        if (totalSize > 26) {
+        if (totalSize > LABEL_LIMIT) {
             break;
         } else {
             for (int j = 0; j < size; j++, i++) {
@@ -175,7 +196,8 @@ void add_view_word(GtkWidget *view, char *word) {
     if (word == NULL) return;
     size_t size = strlen(word);
     for (int i = 0; i < size; i++) {
-        add_view_char(view, word[i]);
+        add_view_char(view, &word[i]);
+        if(word[i]<0 && word[i]>=-64) i++; //2byte char
     }
 }
 
