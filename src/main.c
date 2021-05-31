@@ -65,7 +65,7 @@ HashTable* load_hashtable() {
 }
 
 void setup_callbacks(AppData* data) {
-    for (int i = 0; i < 11; i++) {
+    for (int i = 0; i < 9; i++) {
         ButtonData* bdata = (ButtonData*)malloc(sizeof(ButtonData));
         bdata->button = i;
         bdata->app_data = data;
@@ -74,6 +74,14 @@ void setup_callbacks(AppData* data) {
         g_signal_connect(G_OBJECT(data->gr->buttons[i]), "released",
                          G_CALLBACK(on_button_released), bdata);
     }
+
+    g_signal_connect(G_OBJECT(data->gr->buttons[9]), "pressed",
+                     G_CALLBACK(on_plus_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[10]), "pressed",
+                     G_CALLBACK(on_zero_clicked), data);
+    g_signal_connect(G_OBJECT(data->gr->buttons[11]), "pressed",
+                     G_CALLBACK(on_hashtag_clicked), data);
+
 
     g_signal_connect(G_OBJECT(data->gr->buttons[12]), "notify::active",
                      G_CALLBACK(on_t9_switch), data);
