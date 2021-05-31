@@ -3,7 +3,7 @@
 GtkWidget *create_window() {
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "LABP - T9");
-    gtk_window_set_default_size(GTK_WINDOW(window), 250, 400);
+    gtk_window_set_default_size(GTK_WINDOW(window), 350, 400);
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_container_set_border_width(GTK_CONTAINER(window), 20);
@@ -80,8 +80,6 @@ void set_label_text(GtkWidget *label, char *text) {
     gtk_label_set_text(GTK_LABEL(label), text);
 }
 
-
-
 void set_view_text(GtkWidget *view, char *text) {
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
     gtk_text_buffer_set_text(buffer, text, -1);
@@ -116,54 +114,70 @@ void remove_view_char(GtkWidget *view) {
     gtk_text_buffer_backspace(buffer, &iter, 1, 1);
 }
 
-void remove_view_last_word(GtkWidget* view) {
-     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
-     GtkTextIter iter;
-     gtk_text_buffer_get_end_iter(buffer, &iter);
-     gtk_text_iter_backward_char(&iter);
-     char ch = gtk_text_iter_get_char(&iter);
-     while(ch!=' ' && ch != 0) {
-          gtk_text_iter_forward_char(&iter);
-          gtk_text_buffer_backspace(buffer, &iter, 1, 1);
-          gtk_text_iter_backward_char(&iter);
-          ch = gtk_text_iter_get_char(&iter);
-     }
+void remove_view_last_word(GtkWidget *view) {
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+    GtkTextIter iter;
+    gtk_text_buffer_get_end_iter(buffer, &iter);
+    gtk_text_iter_backward_char(&iter);
+    char ch = gtk_text_iter_get_char(&iter);
+    while (ch != ' ' && ch != 0) {
+        gtk_text_iter_forward_char(&iter);
+        gtk_text_buffer_backspace(buffer, &iter, 1, 1);
+        gtk_text_iter_backward_char(&iter);
+        ch = gtk_text_iter_get_char(&iter);
+    }
 }
 
-void fill_label(GtkWidget *label, Node *curr) { //curr != null
-     char str[26];
-     char *word;
-     size_t size, totalSize=0;
-     int i=0;
-     while(curr != NULL) {
-          word = (char *)curr->value;
-          size = strlen(word);
-          totalSize += size + 2;
+void fill_label(GtkWidget *label, Node *curr) {
+    char str[33];
+    char *word;
+    size_t size, totalSize = 0;
+    int i = 0;
 
-          if(totalSize > 26) break;
+    str[i] = '<';
+    str[i + 1] = 'b';
+    str[i + 2] = '>';
+    i = 3;
+    int first = 1;
 
-          else {
-               for(int j=0; j<size;j++,i++) {
-                    str[i] = word[j];
-               }
-               str[i] = ' '; i++;
-               str[i] = ' '; i++;
-               str[i] = '\0';
-          }
-          curr = curr->next;
-     }
-     set_label_text(label, str);
+    while (curr != NULL) {
+        word = (char *)curr->value;
+        size = strlen(word);
+        totalSize += size + 2;
+
+        if (totalSize > 26) {
+            break;
+        } else {
+            for (int j = 0; j < size; j++, i++) {
+                str[i] = word[j];
+            }
+
+            if (first) {
+                str[i] = '<';
+                str[i + 1] = '/';
+                str[i + 2] = 'b';
+                str[i + 3] = '>';
+                i += 4;
+                first = 0;
+            }
+
+            str[i] = ' ';
+            str[i + 1] = ' ';
+            str[i + 2] = '\0';
+            i += 2;
+        }
+        curr = curr->next;
+    }
+    gtk_label_set_markup(GTK_LABEL(label), str);
 }
 
 void add_view_word(GtkWidget *view, char *word) {
-     if(word == NULL) return;
-     size_t size = strlen(word);
-     for(int i=0; i<size; i++) {
-          add_view_char(view, word[i]);
-     }
-
+    if (word == NULL) return;
+    size_t size = strlen(word);
+    for (int i = 0; i < size; i++) {
+        add_view_char(view, word[i]);
+    }
 }
-
 
 Graphics *graphics_init() {
     GtkWidget *window;
