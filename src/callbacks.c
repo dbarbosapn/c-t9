@@ -158,7 +158,8 @@ void on_click_t9(int button, AppData* data) {
     data->last_click_time = curr_time;
 
     size_t len = strlen(data->t9_buffer);
-    if (button <= 8) {
+    if (button <= 8 &&
+        !(data->cur_node == NULL && strlen(data->t9_buffer) != 0)) {
         data->t9_buffer[len] = '1' + button;
         data->t9_buffer[len + 1] = '\0';
         t9_update(data);
