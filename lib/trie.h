@@ -5,12 +5,14 @@
 #include <linked_list.h>
 #include <stdio.h>
 
-#define NUM_CHARS 26
+#define NUM_BUCKETS 26
 #define LOAD_DICT_BUF 64
 
 typedef struct trie_node {
     int is_word;
-    struct trie_node* children[NUM_CHARS];
+    Node* buckets[NUM_BUCKETS];
+    char val;
+    int is_diacritic;
 } TrieNode;
 
 TrieNode* create_trie_node();

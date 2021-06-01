@@ -17,6 +17,10 @@ int str_scan(char* buffer, int buf_size) {
         if (isalpha(buffer[i])) {
             new_buf[str_size] = buffer[i];
             str_size++;
+        } else if (buffer[i] == -61) {
+            new_buf[str_size] = buffer[i];
+            new_buf[str_size + 1] = buffer[i + 1];
+            str_size += 2;
         }
     }
     new_buf[str_size] = '\0';

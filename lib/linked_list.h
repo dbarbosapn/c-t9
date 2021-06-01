@@ -30,7 +30,13 @@ char *list_serialize(Node *head, char *(*serializer)(void *));
 
 void list_save(Node *head, FILE *fp, void (*value_saver)(void *, FILE *));
 
+void list_save_with_size(Node *head, FILE *fp,
+                         void (*value_saver)(void *, FILE *));
+
 Node *list_load(FILE *fp, void *(*value_loader)(FILE *), size_t alloc_size);
+
+Node *list_load_with_size(FILE *fp, void *(*value_loader)(FILE *),
+                          size_t alloc_size);
 
 int list_size(Node *head);
 
