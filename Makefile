@@ -1,7 +1,7 @@
 PROJECT_NAME := c-kanban
 
 COMPILER := gcc
-COMPILER_FLAGS := `pkg-config --cflags gtk+-3.0` -Wall
+COMPILER_FLAGS := `pkg-config --cflags gtk+-3.0` -Wall -g
 COMPILER_END_FLAGS := `pkg-config --libs gtk+-3.0` # se nao for no fim nao funciona
 
 OUTPUT_FOLDER := bin

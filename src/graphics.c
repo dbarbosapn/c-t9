@@ -94,18 +94,24 @@ gchar *get_view_text(GtkWidget *view) {
     return gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
 }
 
-void switch_last_char(GtkWidget *view, char ch) {
+void switch_last_char(GtkWidget *view, char ch, int is_diacritic) {
     remove_view_char(view);
-    add_view_char(view, ch);
+    add_view_char(view, ch, is_diacritic);
 }
 
-void add_view_char(GtkWidget *view, char ch) {
+void add_view_char(GtkWidget *view, char ch, int is_diacritic) {
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
     GtkTextIter iter;
     gtk_text_buffer_get_end_iter(buffer, &iter);
-    char str[1];
-    str[0] = ch;
-    gtk_text_buffer_insert(buffer, &iter, str, 1);
+    char str[2];
+    if (is_diacritic) {
+        str[0] = -61;
+        str[1] = ch;
+        gtk_text_buffer_insert(buffer, &iter, str, 2);
+    } else {
+        str[0] = ch;
+        gtk_text_buffer_insert(buffer, &iter, str, 1);
+    }
 }
 
 void remove_view_char(GtkWidget *view) {
@@ -175,9 +181,10 @@ void fill_label(GtkWidget *label, Node *curr) {
 void add_view_word(GtkWidget *view, char *word) {
     if (word == NULL) return;
     size_t size = strlen(word);
-    for (int i = 0; i < size; i++) {
-        add_view_char(view, word[i]);
-    }
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+    GtkTextIter iter;
+    gtk_text_buffer_get_end_iter(buffer, &iter);
+    gtk_text_buffer_insert(buffer, &iter, word, size);
 }
 
 Graphics *graphics_init() {

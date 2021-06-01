@@ -35,6 +35,7 @@ void insert_word(TrieNode* root, char* word) {
             c = word[i];
         }
         int index = c % NUM_BUCKETS;
+        if (index < 0) index += NUM_BUCKETS;
 
         TrieNode* tnode = NULL;
 
@@ -91,6 +92,7 @@ Node* prefix_search(TrieNode* root, char* prefix, HashTable* ht,
             c = prefix[i];
         }
         int index = c % NUM_BUCKETS;
+        if (index < 0) index += NUM_BUCKETS;
 
         int found = 0;
         for (Node* curr = start->buckets[index]; curr != NULL;
