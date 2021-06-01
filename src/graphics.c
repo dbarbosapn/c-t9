@@ -1,9 +1,11 @@
 #include "graphics.h"
 
+#define MAX_LENGTH_LABEL 20
+
 GtkWidget *create_window() {
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "LABP - T9");
-    gtk_window_set_default_size(GTK_WINDOW(window), 350, 400);
+    gtk_window_set_default_size(GTK_WINDOW(window), 250, 400);
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_container_set_border_width(GTK_CONTAINER(window), 20);
@@ -72,10 +74,9 @@ GtkWidget *create_button_grid(gchar *numbers[], gchar *values[],
     return grid;
 }
 
-// SIZE LIMIT: 26
 void set_label_text(GtkWidget *label, char *text) {
-    if (strlen(text) > 26) {
-        text = "Error: buffer too long";
+    if (strlen(text) > MAX_LENGTH_LABEL) {
+        text = "Error: text too long";
     }
     gtk_label_set_text(GTK_LABEL(label), text);
 }
@@ -135,7 +136,7 @@ void fill_label(GtkWidget *label, Node *curr) {
     int i = 0;
 
     str[i] = '<';
-    str[i + 1] = 'b';
+    str[i + 1] = 'u';
     str[i + 2] = '>';
     i = 3;
     int first = 1;
@@ -145,7 +146,7 @@ void fill_label(GtkWidget *label, Node *curr) {
         size = strlen(word);
         totalSize += size + 2;
 
-        if (totalSize > 26) {
+        if (totalSize > MAX_LENGTH_LABEL) {
             break;
         } else {
             for (int j = 0; j < size; j++, i++) {
@@ -155,7 +156,7 @@ void fill_label(GtkWidget *label, Node *curr) {
             if (first) {
                 str[i] = '<';
                 str[i + 1] = '/';
-                str[i + 2] = 'b';
+                str[i + 2] = 'u';
                 str[i + 3] = '>';
                 i += 4;
                 first = 0;
@@ -219,11 +220,10 @@ Graphics *graphics_init() {
 
     //-------------------------- End ----------------------------------
     gtk_widget_show_all(window);
-    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit),
-                     NULL);
 
     //-------------------------- Return Struct -----------------------
     Graphics *gr = (Graphics *)malloc(sizeof(Graphics));
+    gr->window = window;
     gr->view = view;
     gr->label = label;
     for (int i = 0; i < 14; i++) {

@@ -2,9 +2,11 @@
 #define _GRAPHICS
 
 #include <gtk/gtk.h>
+
 #include "linked_list.h"
 
 typedef struct {
+    GtkWidget *window;
     GtkWidget *view;
     GtkWidget *label;
     GtkWidget *buttons[14];
@@ -24,8 +26,10 @@ gchar *get_view_text(GtkWidget *view);
 
 void switch_last_char(GtkWidget *view, char ch);
 
-void fill_label(GtkWidget *label, Node *curr); //curr != null
+void fill_label(GtkWidget *label, Node *curr);
 
 void add_view_word(GtkWidget *view, char *word);
+
+void set_view_text(GtkWidget *view, char *text);
 
 #endif
