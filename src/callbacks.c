@@ -158,8 +158,7 @@ void on_click_t9(int button, AppData* data) {
     data->last_click_time = curr_time;
 
     size_t len = strlen(data->t9_buffer);
-    if (button <= 8 &&
-        !(data->cur_node == NULL && strlen(data->t9_buffer) != 0)) {
+    if (button <= 8) {
         data->t9_buffer[len] = '1' + button;
         data->t9_buffer[len + 1] = '\0';
         t9_update(data);
@@ -223,6 +222,7 @@ void on_zero_clicked(GtkButton* button, AppData* data) {
     if (data->t9_mode && data->cur_node != NULL) {
         t9_select(data);
     } else if (!data->adding_word) {
+        data->last_click_time = 0;
         on_click_not_t9(10, data);
     }
 }
@@ -245,6 +245,7 @@ void on_hash_clicked(GtkButton* button, AppData* data) {
         free(data->saved_text);
         data->saved_text = NULL;
     } else {
+        data->last_click_time = 0;
         on_click_not_t9(11, data);
     }
 }
