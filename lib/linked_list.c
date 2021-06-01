@@ -174,6 +174,15 @@ void list_save(Node *head, FILE *fp, void (*value_saver)(void *, FILE *)) {
     }
 }
 
+void list_save_with_size(Node *head, FILE *fp,
+                         void (*value_saver)(void *, FILE *)) {
+    int size = 0;
+    for (Node *curr = head; curr != NULL; curr = curr->next) size++;
+    fwrite(&size, sizeof(int), 1, fp);
+    for (Node *curr = head; curr != NULL; curr = curr->next)
+        (*value_saver)(curr->value, fp);
+}
+
 /**
  * Loads the list from the given file. fp must have read binary permissions.
  * Assumes that the value_loader will return NULL when there are no more values
@@ -184,6 +193,30 @@ Node *list_load(FILE *fp, void *(*value_loader)(FILE *), size_t alloc_size) {
     Node *head = NULL;
 
     while (1) {
+        void *value = (*value_loader)(fp);
+        if (value == NULL) break;
+        if (head != NULL) {
+            Node *n = create_node(value, alloc_size);
+            curr->next = n;
+            curr = n;
+        } else {
+            head = create_node(value, alloc_size);
+            curr = head;
+        }
+    }
+
+    return head;
+}
+
+Node *list_load_with_size(FILE *fp, void *(*value_loader)(FILE *),
+                          size_t alloc_size) {
+    int size;
+    fread(&size, sizeof(int), 1, fp);
+
+    Node *curr;
+    Node *head = NULL;
+
+    for (int i = 0; i < size; i++) {
         void *value = (*value_loader)(fp);
         if (value == NULL) break;
         if (head != NULL) {
