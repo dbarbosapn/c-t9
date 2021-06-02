@@ -3,7 +3,6 @@
 #include <stringutils.h>
 
 void str_normalize(char* str) {
-    // TODO: Normalize accents too (?)
     for (int i = 0; str[i]; i++) {
         str[i] = tolower(str[i]);
     }
