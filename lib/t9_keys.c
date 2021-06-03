@@ -42,3 +42,28 @@ Node* get_permutations(char* input) {
     get_permutations_util(&list, input, input_len, 0, output, 0);
     return list;
 }
+
+/**
+ * Runs the T9 algorithm. Returns the ordered list of words
+ **/
+Node* run_t9(TrieNode* trie, HashTable* ht, char* input) {
+    Node* permutations = get_permutations(input);
+    Node* curr = permutations;
+
+    Node* result = NULL;
+
+    while (curr != NULL) {
+        char* prefix = curr->value;
+
+        Node* new = prefix_search(trie, prefix, ht, result);
+
+        if (new != NULL) result = new;
+
+        free(prefix);
+        Node* prev = curr;
+        curr = curr->next;
+        free(prev);
+    }
+
+    return result;
+}

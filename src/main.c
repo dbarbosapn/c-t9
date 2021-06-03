@@ -1,6 +1,5 @@
 #include <gtk/gtk.h>
 #include <int_hashtable.h>
-#include <simple_input.h>
 #include <stdio.h>
 #include <string.h>
 #include <stringutils.h>
